@@ -31,10 +31,10 @@ public class JwtUtil {
     private Claims extractAllClaims(String token) {
         try {
             return Jwts.parser()
-                    .setSigningKey(getSigningKey())
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
         }catch (JwtException e){
             throw new IllegalArgumentException("Invalid JWT Token",e);
         }
@@ -51,10 +51,12 @@ public class JwtUtil {
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .claims()
+                .add(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .and()
                 .signWith(getSigningKey())
                 .compact();
     }
