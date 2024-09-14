@@ -35,12 +35,9 @@ public class StudentSecurity {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
-                .cors(withDefaults()) // Enable CORS
+                .cors(withDefaults())
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/students/register").permitAll()
-                        .requestMatchers("/students/login").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/students/**").authenticated()
+                        .requestMatchers("/students/register","/students/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults())
@@ -55,9 +52,7 @@ public class StudentSecurity {
                                 .authenticationEntryPoint((request, response, authException) -> {
                                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                                 })
-                                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
-                                })
+                                .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden"))
                 );
 
         return http.build();
